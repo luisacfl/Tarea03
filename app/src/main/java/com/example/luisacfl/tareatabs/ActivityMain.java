@@ -1,12 +1,13 @@
 package com.example.luisacfl.tareatabs;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -20,6 +21,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.luisacfl.tareatabs.beans.ItemProduct;
+
 import java.util.Locale;
 
 public class ActivityMain extends AppCompatActivity {
@@ -28,6 +31,10 @@ public class ActivityMain extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     SectionsPagerAdapter mSectionsPagerAdapter;
+    private FragmentTechnology fragmentTechnology;
+    private FragmentHome fragmentHome;
+    private FragmentElectronics fragmentElectronics;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,10 +118,29 @@ public class ActivityMain extends AppCompatActivity {
             case R.id.activity_main_logout:
                 clearPreferences();
                 return true;
+            case R.id.activity_main_products:
+                Intent products = new Intent(this, ActivityProduct.class);
+                startActivityForResult(products, Constants.INTENT_PRODUCTS_NOTIFY);
+                break;
         }
-
-        return super.onOptionsItemSelected(item);
+        return true;
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case Constants.INTENT_PRODUCTS_NOTIFY:
+                if (resultCode == Activity.RESULT_OK) {
+                    if(data != null){
+                        ItemProduct itemProduct = data.getParcelableExtra("ITEM");
+                        if(itemProduct.getCategory().getName().equalsIgnoreCase("TECHNOLOGY")){
+                            fragmentTechnology.notifyDataSetChanged(itemProduct);
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
 
     public void clearPreferences(){
         SharedPreferences sharedPreferences =

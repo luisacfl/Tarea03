@@ -12,6 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.luisacfl.tareatabs.beans.ItemProduct;
+import com.example.luisacfl.tareatabs.database.DatabaseHandler;
+import com.example.luisacfl.tareatabs.database.ItemProductControl;
 import java.util.ArrayList;
 
 
@@ -21,31 +24,33 @@ import java.util.ArrayList;
 public class FragmentTechnology extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ArrayList myDataSet;
+
     public FragmentTechnology() {}
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_technology, container, false);
-        RecyclerView recyclerView = (RecyclerView)
-                view.findViewById(R.id.fragment_technology_recycler_view);
-// Use this setting to improve performance if you know that changes
-// in content do not change the layout size of the RecyclerView
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_technology_recycler_view);
+
         recyclerView.setHasFixedSize(true);
-// Use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
-        ArrayList<ItemProduct> myDataSet = new ArrayList<ItemProduct>();
-        ItemProduct itemProduct = new ItemProduct();
-        itemProduct.setTitle("MacBook Pro 17\"");
-        itemProduct.setStore("BestBuy");
-        itemProduct.setLocation("Zapopan, Jalisco");
-        itemProduct.setPhone("33 12345678");
-        itemProduct.setImage(0);
-        itemProduct.setDescription("Llevate esta Mac con un 30% de descuento para que"+
-                "puedas programar para XCode y Android sin tener que batallar"+
-                "tanto como en tu Windows");
-        myDataSet.add(itemProduct);
+
+        ItemProductControl itemProductControl = new ItemProductControl();
+        myDataSet = itemProductControl.getProductsWhere(
+                null, DatabaseHandler.KEY_PRODUCT_ID + " ASC",
+                DatabaseHandler.getInstance(getActivity()));
+
         mAdapter = new AdapterProduct(getActivity(), myDataSet);
         recyclerView.setAdapter(mAdapter);
+        itemProductControl =  null;
         return view;
+    }
+
+    public void notifyDataSetChanged(ItemProduct itemProduct){
+        myDataSet.add(itemProduct);
+        mAdapter.notifyDataSetChanged();
     }
 }
